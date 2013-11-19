@@ -1,6 +1,7 @@
-package NaiveBayesProject;
+package Project.NaiveBayes;
 
-import NaiveBayesProject.NaiveBayes;
+import weka.classifiers.bayes.NaiveBayes;;
+
 import java.util.Arrays;
 
 import weka.attributeSelection.GainRatioAttributeEval;
