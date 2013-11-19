@@ -64,7 +64,7 @@ public class NaiveBayesProject {
             //weights = GainRatio(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
-            weights = HillClimbing(train,weights,5,.0001);
+           // weights = HillClimbing(train,weights,5,.0001);
             
             weightDisplay(weights);
            
@@ -74,7 +74,6 @@ public class NaiveBayesProject {
             
             //Builds the Naive Bayes Model
             model.setWeight(weights);
-            model.buildClassifier(train);
             
             //Tests the model
             eval.evaluateModel(model,test);
@@ -143,7 +142,7 @@ public class NaiveBayesProject {
     	//Can be switched to just an double without the array
     	double weigh_change[] = new double[train.numAttributes()];
     	double AUCPost = 0;
-    	double AUC;
+    	double AUC=0;
     	boolean firstCheck = true;
     	NaiveBayes model = new NaiveBayes();
     	
@@ -172,9 +171,7 @@ public class NaiveBayesProject {
     		{
     			//Sets weights builds model
     			model.setWeight(weights);
-        		eval.evaluateModel(model, validate_HC);
-        		
-        		//Eli sucks
+        		eval.evaluateModel(model, validate_HC);       		
         		
         		//System.out.println(eval.pctCorrect());
         		AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
@@ -194,19 +191,12 @@ public class NaiveBayesProject {
 				//System.out.println("Current delta change :" + (oAOC - AOCPost[i]) + " AOCCheck : " +AOCCheck);
     			//Should check to see if the change in AUC is enough to keep going
     			//Make this a different method and break if no AUC gain
-    			if((AUC - AUCPost) > AOCCheck)
+    			if((AUCPost - AUC) < AOCCheck)
     			{
     				weights[i] -= weigh_change[i];
-    				
-    				model.setWeight(weights);
-            		eval.evaluateModel(model, validate_HC);
-            		
-            		AUCPost = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
-            		if((AUC - AUCPost) > AOCCheck)
-        			{
-            			weights[i] += weigh_change[i];
-            			break;
-        			}
+
+            		break;
+        			
     			}
     		}
 		}
