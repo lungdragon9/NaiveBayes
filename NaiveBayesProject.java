@@ -10,7 +10,9 @@ import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.PathInfo;
 import weka.core.converters.ConverterUtils.DataSource;
+import Project.NaiveBayes.binary.*;
 
 @SuppressWarnings("unused")
 public class NaiveBayesProject {
@@ -23,7 +25,7 @@ public class NaiveBayesProject {
 
             //Finds data
             NaiveBayes model = new NaiveBayes();
-            tmpInstances = (new DataSource("C:\\WorkSpace\\binary\\emotions.arff")).getDataSet();
+            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/mushroom_1.arff")).getDataSet();
 		
             double[] weights = new double[tmpInstances.numAttributes()];
             
