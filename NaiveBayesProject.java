@@ -1,9 +1,9 @@
-package Projet.NaiveBayesProject;
+package NaiveBayesProject;
 
+import NaiveBayesProject.NaiveBayes;
 import java.util.Arrays;
 
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -89,40 +89,6 @@ public class NaiveBayesProject {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-    }
-    
-    /**
-     * Finds the weights using Gain Ratio
-     * @param train : training set
-     * @return : returns the weights
-     */
-    public static double[] MarkovChain(Instances train)
-    {
-    	double[] weight = new double[train.numAttributes()];
-    	double sum=0;
-    	try {
-	    	MarkovChainAttributeEval Gain = new MarkovChainAttributeEval();    	
-	
-	    	//Trains the MarkovChain
-			Gain.buildEvaluator(train);
-	    	
-			//Finds the weights using the Gain Ratio
-	    	for(int i =0; i < train.numAttributes(); i ++)
-	    	{
-	    		weight[i] = Gain.evaluateAttribute(i);
-	    		sum += weight[i];
-	    	}
-	    	//Helps the weights
-	    	for(int i =0; i < train.numAttributes(); i ++)
-	    	{
-	    		weight[i] = (weight[i] * train.numAttributes())/sum;
-	    	}
-    	
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return weight;
     }
 	
     /**
