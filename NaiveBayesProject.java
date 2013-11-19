@@ -79,6 +79,7 @@ public class NaiveBayesProject {
             model.setWeight(weights);
             
             //Tests the model
+            eval = new Evaluation(test);
             eval.evaluateModel(model,test);
 
             //Output
