@@ -1,6 +1,6 @@
 package Project.NaiveBayes;
 
-import weka.classifiers.bayes.NaiveBayes;;
+import weka.classifiers.bayes.NaiveBayes;
 
 import java.util.Arrays;
 
@@ -218,12 +218,12 @@ public class NaiveBayesProject {
     	try {
 	
 	    	//Trains the MarkovChain
-			Gain.buildEvaluator(train);
+			//Gain.buildEvaluator(train);
 	    	
 			//Finds the weights using the Gain Ratio
 	    	for(int i =0; i < train.numAttributes(); i ++)
 	    	{
-	    		weight[i] = Gain.evaluateAttribute(i);
+	    		//weight[i] = Gain.evaluateAttribute(i);
 	    		sum += weight[i];
 	    	}
 	    	//Helps the weights
