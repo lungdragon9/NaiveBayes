@@ -1,8 +1,7 @@
-package Projet.NaiveBayes;
+package Projet.NaiveBayesProject;
 
 import java.util.Arrays;
 
-import weka.attributeSelection.GainRatioAttributeEval;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.ThresholdCurve;
@@ -61,14 +60,14 @@ public class NaiveBayesProject {
             
             
             //Hill Climbing
-            //weights = GainRatio(train);
+            //weights = MarkovChain(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
            // weights = HillClimbing(train,weights,5,.0001);
             
             weightDisplay(weights);
            
-            //weights = GainRatio(train);
+            //weights = MarkovChain(train);
             
             //weightDisplay(weights);
             
@@ -97,14 +96,14 @@ public class NaiveBayesProject {
      * @param train : training set
      * @return : returns the weights
      */
-    public static double[] GainRatio(Instances train)
+    public static double[] MarkovChain(Instances train)
     {
     	double[] weight = new double[train.numAttributes()];
     	double sum=0;
     	try {
-	    	GainRatioAttributeEval Gain = new GainRatioAttributeEval();    	
+	    	MarkovChainAttributeEval Gain = new MarkovChainAttributeEval();    	
 	
-	    	//Trains the GainRatio
+	    	//Trains the MarkovChain
 			Gain.buildEvaluator(train);
 	    	
 			//Finds the weights using the Gain Ratio
@@ -203,6 +202,40 @@ public class NaiveBayesProject {
     	
 		return weights;
     	
+    }
+    
+    /**
+     * Finds the weights using Markov Chain
+     * @param train : training set
+     * @return : returns the weights
+     */
+    public static double[] MarkovChain(Instances train)
+    {
+    	double[] weight = new double[train.numAttributes()];
+    	double sum=0;
+    	try {
+	    	MarkovChainAttributeEval Gain = new MarkovChainAttributeEval();    	
+	
+	    	//Trains the MarkovChain
+			Gain.buildEvaluator(train);
+	    	
+			//Finds the weights using the Gain Ratio
+	    	for(int i =0; i < train.numAttributes(); i ++)
+	    	{
+	    		weight[i] = Gain.evaluateAttribute(i);
+	    		sum += weight[i];
+	    	}
+	    	//Helps the weights
+	    	for(int i =0; i < train.numAttributes(); i ++)
+	    	{
+	    		weight[i] = (weight[i] * train.numAttributes())/sum;
+	    	}
+    	
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return weight;
     }
     
     /**
