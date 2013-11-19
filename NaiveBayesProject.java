@@ -1,4 +1,4 @@
-package Projet;
+package Projet.NaiveBayes;
 
 import java.util.Arrays;
 
@@ -64,7 +64,7 @@ public class NaiveBayesProject {
             //weights = GainRatio(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
-            weights = HillClimbing(train,weights,5,.000001);
+            weights = HillClimbing(train,weights,5,.0001);
             
             weightDisplay(weights);
            
@@ -174,9 +174,11 @@ public class NaiveBayesProject {
     			model.setWeight(weights);
         		eval.evaluateModel(model, validate_HC);
         		
-        		System.out.println(eval.pctCorrect());
+        		//Eli sucks
+        		
+        		//System.out.println(eval.pctCorrect());
         		AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
-        		//System.out.println(AUC);
+        		System.out.println(AUC);
         		
         		//Finds o(AUC)
     			oAOC = 1/(1+Math.pow(Math.E,(-1*AUC)));
@@ -202,6 +204,7 @@ public class NaiveBayesProject {
             		AUCPost = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
             		if((AUC - AUCPost) > AOCCheck)
         			{
+            			weights[i] += weigh_change[i];
             			break;
         			}
     			}
