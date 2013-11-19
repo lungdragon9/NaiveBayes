@@ -5,8 +5,11 @@ import weka.classifiers.bayes.NaiveBayes;
 import java.util.Arrays;
 
 import weka.attributeSelection.GainRatioAttributeEval;
+import weka.attributeSelection.InfoGainAttributeEval;
 import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.ThresholdCurve;
+import weka.classifiers.trees.j48.Distribution;
+import weka.classifiers.trees.j48.GainRatioSplitCrit;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -25,7 +28,7 @@ public class NaiveBayesProject {
 
             //Finds data
             NaiveBayes model = new NaiveBayes();
-            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/mushroom_1.arff")).getDataSet();
+            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/mushroom/data.arff")).getDataSet();
 		
             double[] weights = new double[tmpInstances.numAttributes()];
             
@@ -40,10 +43,11 @@ public class NaiveBayesProject {
             //Creates both the train and test data
             Instances train = new Instances(tmpInstances,0,cutoff);
             Instances test = new Instances(tmpInstances,cutoff,tmpInstances.numInstances() -cutoff);
+
             
             //Sets the class
-            train.setClass(train.attribute("class"));
-            test.setClass(test.attribute("class"));
+            train.setClass(train.attribute(train.numAttributes()-1));
+            test.setClass(test.attribute(train.numAttributes()-1));
 
           //Builds the Naive Bayes Model
             model.setWeight(weights);
@@ -51,35 +55,31 @@ public class NaiveBayesProject {
             
             
             //Tests the model
-            Evaluation eval = new Evaluation(test);
-            eval.evaluateModel(model,test);
+            //Evaluation eval = new Evaluation(test);
+           // eval.evaluateModel(model,test);
 
             //Output
-            System.out.println("Num Testing Instances " + test.numInstances());
-            System.out.println("Correct: " + eval.correct());
-            System.out.println("Incorrect " + eval.incorrect());
-            System.out.println("Error rate " + eval.errorRate());
-            System.out.println("Pct Correct " +eval.pctCorrect());
-            System.out.println("done");
+            //System.out.println("Num Testing Instances " + test.numInstances());
+            //System.out.println("Correct: " + eval.correct());
+            //System.out.println("Incorrect " + eval.incorrect());
+            //System.out.println("Error rate " + eval.errorRate());
+            //System.out.println("Pct Correct " +eval.pctCorrect());
+            //System.out.println("done");
             
             
             //Hill Climbing
+            weights = GainRatio(train);
             //weights = MarkovChain(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
-           // weights = HillClimbing(train,weights,5,.0001);
-            
-            weightDisplay(weights);
-           
-            //weights = GainRatio(train);
-            
-            //weightDisplay(weights);
+            //weights = HillClimbing(train,weights,5,.01);
             
             //Builds the Naive Bayes Model
             model.setWeight(weights);
             
             //Tests the model
-            eval = new Evaluation(test);
+            //eval = new Evaluation(test);
+            Evaluation eval = new Evaluation(test);
             eval.evaluateModel(model,test);
 
             //Output
@@ -106,8 +106,8 @@ public class NaiveBayesProject {
     	double[] weight = new double[train.numAttributes()];
     	double sum=0;
     	try {
-	    	GainRatioAttributeEval Gain = new GainRatioAttributeEval();    	
-	
+    		InfoGainAttributeEval Gain = new InfoGainAttributeEval();
+	    	
 	    	//Trains the GainRatio
 			Gain.buildEvaluator(train);
 	    	
@@ -115,21 +115,15 @@ public class NaiveBayesProject {
 	    	for(int i =0; i < train.numAttributes(); i ++)
 	    	{
 	    		weight[i] = Gain.evaluateAttribute(i);
-	    		sum += weight[i];
-	    	}
-	    	//Helps the weights
-	    	for(int i =0; i < train.numAttributes(); i ++)
-	    	{
-	    		weight[i] = (weight[i] * train.numAttributes())/sum;
 	    	}
     	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return weight;
+    	
+		return weight_Distributions(weight);
     }
-	
 	
     /**
      * Finds the weights using Hill Climbing
@@ -189,7 +183,7 @@ public class NaiveBayesProject {
     			oAOC = 1/(1+Math.pow(Math.E,(-1*AUC)));
     			weigh_change[i] = learningRate*oAOC*Math.pow((1-oAOC),2);
     			
-				weights[i] += weigh_change[i];
+				weights[i] -= weigh_change[i];
     			
     			model.setWeight(weights);
     			model.buildClassifier(train_HC); 
@@ -201,12 +195,11 @@ public class NaiveBayesProject {
 				//System.out.println("Current delta change :" + (oAOC - AOCPost[i]) + " AOCCheck : " +AOCCheck);
     			//Should check to see if the change in AUC is enough to keep going
     			//Make this a different method and break if no AUC gain
-        		System.out.println((AUC - AUCPost) > AOCCheck);
-        		if(weights[i]> 100)
-					break;
+        		//System.out.println((AUC - AUCPost) > AOCCheck);
+        		
 	    			if((AUC - AUCPost) > AOCCheck)
 	    			{
-	    				weights[i] -= weigh_change[i];
+	    				weights[i] += weigh_change[i];
 	
 	            		break;
 	        			
