@@ -127,6 +127,7 @@ public class NaiveBayesProject {
 		return weight;
     }
 	
+	
     /**
      * Finds the weights using Hill Climbing
      * @param train : training set
@@ -172,11 +173,14 @@ public class NaiveBayesProject {
     		{
     			//Sets weights builds model
     			model.setWeight(weights);
+    			model.buildClassifier(train_HC); 
         		eval.evaluateModel(model, validate_HC);       		
         		
         		//System.out.println(eval.pctCorrect());
+        		
+        		//System.out.println(eval.pctCorrect());
         		AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
-        		System.out.println(AUC);
+        		//System.out.println(AUC);
         		
         		//Finds o(AUC)
     			oAOC = 1/(1+Math.pow(Math.E,(-1*AUC)));
@@ -185,24 +189,30 @@ public class NaiveBayesProject {
 				weights[i] += weigh_change[i];
     			
     			model.setWeight(weights);
+    			model.buildClassifier(train_HC); 
         		eval.evaluateModel(model, validate_HC);
         		
+        		//System.out.println(eval.pctCorrect());
         		AUCPost = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
-    			
+    			//System.out.println(AUCPost);
 				//System.out.println("Current delta change :" + (oAOC - AOCPost[i]) + " AOCCheck : " +AOCCheck);
     			//Should check to see if the change in AUC is enough to keep going
     			//Make this a different method and break if no AUC gain
-    			if((AUCPost - AUC) < AOCCheck)
-    			{
-    				weights[i] -= weigh_change[i];
+        		System.out.println((AUC - AUCPost) > AOCCheck);
+        		if(weights[i]> 100)
+					break;
+	    			if((AUC - AUCPost) > AOCCheck)
+	    			{
+	    				weights[i] -= weigh_change[i];
+	
+	            		break;
+	        			
+	    			}
 
-            		break;
-        			
-    			}
     		}
 		}
     	
-		return weights;
+		return weight_Distributions(weights);
     	
     }
     
