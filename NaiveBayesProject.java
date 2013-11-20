@@ -68,17 +68,17 @@ public class NaiveBayesProject {
             
             
             //Hill Climbing
-            weights = GainRatio(train);
+            //weights = GainRatio(train);
             //weights = MarkovChain(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
-            //weights = HillClimbing(train,weights,5,.01);
+            weights = HillClimbing(train,weights,10,.000001);
+            weightDisplay(weights);
             
             //Builds the Naive Bayes Model
             model.setWeight(weights);
             
             //Tests the model
-            //eval = new Evaluation(test);
             Evaluation eval = new Evaluation(test);
             eval.evaluateModel(model,test);
 
@@ -169,15 +169,13 @@ public class NaiveBayesProject {
     		while(true)
     		{
     			//Sets weights builds model
+    			eval = new Evaluation(train_HC);
     			model.setWeight(weights);
     			model.buildClassifier(train_HC); 
-        		eval.evaluateModel(model, validate_HC);       		
+        		eval.evaluateModel(model, validate_HC);
         		
-        		//System.out.println(eval.pctCorrect());
-        		
-        		//System.out.println(eval.pctCorrect());
         		AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
-        		//System.out.println(AUC);
+        		System.out.println(AUC);
         		
         		//Finds o(AUC)
     			oAOC = 1/(1+Math.pow(Math.E,(-1*AUC)));
@@ -185,24 +183,28 @@ public class NaiveBayesProject {
     			
 				weights[i] -= weigh_change[i];
     			
+				eval = new Evaluation(train_HC);
     			model.setWeight(weights);
     			model.buildClassifier(train_HC); 
         		eval.evaluateModel(model, validate_HC);
         		
-        		//System.out.println(eval.pctCorrect());
         		AUCPost = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
     			//System.out.println(AUCPost);
-				//System.out.println("Current delta change :" + (oAOC - AOCPost[i]) + " AOCCheck : " +AOCCheck);
     			//Should check to see if the change in AUC is enough to keep going
     			//Make this a different method and break if no AUC gain
         		//System.out.println((AUC - AUCPost) > AOCCheck);
         		
-	    			if((AUC - AUCPost) > AOCCheck)
+	    			if((AUCPost - AUC) < AOCCheck)
 	    			{
 	    				weights[i] += weigh_change[i];
 	
 	            		break;
 	        			
+	    			}
+	    			if(weights[i] <=0)
+	    			{
+	    				weights[i] =0;
+	    				break;
 	    			}
 
     		}
