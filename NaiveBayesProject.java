@@ -28,7 +28,7 @@ public class NaiveBayesProject {
 
             //Finds data
             NaiveBayes model = new NaiveBayes();
-            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/mushroom/data.arff")).getDataSet();
+            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/colic/colic.arff")).getDataSet();
 		
             double[] weights = new double[tmpInstances.numAttributes()];
             
@@ -68,7 +68,7 @@ public class NaiveBayesProject {
             
             
             //Hill Climbing
-            //weights = GainRatio(train);
+            weights = GainRatio(train);
             //weights = MarkovChain(train);
             weightDisplay(weights);
             //Arrays.fill(weights, 1);
@@ -267,6 +267,11 @@ public class NaiveBayesProject {
     	return weights;
     }
     
+    
+    //Please use this MCMC Eli
+    //Most of the code should come out of Hill Climbing
+    // This to find the AUC
+    ///AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
     /**
      * Finds the weights using Markov Chain Monte Carlo
      * @param train : training set
