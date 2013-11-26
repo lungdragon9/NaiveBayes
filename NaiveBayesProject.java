@@ -15,7 +15,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.PathInfo;
 import weka.core.converters.ConverterUtils.DataSource;
-import Project.NaiveBayes.binary.*;
 
 @SuppressWarnings("unused")
 public class NaiveBayesProject {
