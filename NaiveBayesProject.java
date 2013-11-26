@@ -3,6 +3,7 @@ package Project.NaiveBayes;
 import weka.classifiers.bayes.NaiveBayes;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import weka.attributeSelection.GainRatioAttributeEval;
 import weka.attributeSelection.InfoGainAttributeEval;
@@ -27,7 +28,7 @@ public class NaiveBayesProject {
 
             //Finds data
             NaiveBayes model = new NaiveBayes();
-            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/colic/colic.arff")).getDataSet();
+            tmpInstances = (new DataSource("https://dl.dropboxusercontent.com/u/88175668/binary/mushroom/data.arff")).getDataSet();
 		
             double[] weights = new double[tmpInstances.numAttributes()];
             
@@ -67,11 +68,16 @@ public class NaiveBayesProject {
             
             
             //Hill Climbing
-            weights = GainRatio(train);
+            //weights = GainRatio(train);
             //weights = MarkovChain(train);
-            weightDisplay(weights);
+            //weightDisplay(weights);
             //Arrays.fill(weights, 1);
-            weights = HillClimbing(train,weights,10,.000001);
+            //weights = HillClimbing(train,weights,10,.000001);
+            //weightDisplay(weights);
+            
+            //Markov Chain
+            //Arrays.fill(weights, 1);
+            weights = MCMC(train,weights,0.05,.000001);
             weightDisplay(weights);
             
             //Builds the Naive Bayes Model
@@ -276,12 +282,102 @@ public class NaiveBayesProject {
      * @param train : training set
      * @param weights[] : Used for combines methods
      * @return : returns the weights
+     * @throws Exception 
      */
-    public double[] MCMC(Instances train,double weights[])
+    public static double[] MCMC(Instances train,double weights[], double deltaW, double eAUC) throws Exception
     {
+    	ThresholdCurve curvefinder = new ThresholdCurve();
+    	//Can be switched to just an double without the array
+    	double AUCPost = 0;
+    	double AUC=0;
+    	double AUCDelta = 0;
+    	NaiveBayes model = new NaiveBayes();
+    	
+//    	double[] weights_local = new double[weights.length];
+    	
+    	//Splits the training set into two smaller sets
+    	int cutoff = (int)(train.numInstances() * .2);
+        
+        //Creates both the train and test data
+        Instances train_MCMC = new Instances(train,0,cutoff);
+        //Helps to validate the changes to the weights
+        Instances validate_MCMC = new Instances(train,cutoff,train.numInstances() -cutoff);
+    	
+		model.buildClassifier(train_MCMC);        
+		
+		Evaluation eval = new Evaluation(train_MCMC);
+    	
+    	int[] weights_direction = new int[weights.length];
+    	
+    	alterWeightDirection(weights_direction);
+    	
+    	while(true) 
+    	{
+    		model.setWeight(weights);
+    		eval.evaluateModel(model, validate_MCMC);
+    		AUC = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
+    		
+    		//weightDisplay(weights);
+    		
+    		for(int i = 0; i < weights.length; i++)
+    		{
+    			//weights_local[i] = weights[i];
+    			
+    			switch (weights_direction[i])
+    			{
+	    			case 0:
+	    				weights[i] += deltaW;
+	    				break;
+	    			case 1:
+	    				weights[i] -= deltaW;
+	    				break;
+	    			case 2:
+	    				break;
+    			}
+    			
+//    			if (weights[i] < 0)
+//    			{
+//    				weights[i] = 0;
+//    			}
+    		}
+    		
+    		model.setWeight(weights);
+    		eval.evaluateModel(model, validate_MCMC);
+    		AUCPost = ThresholdCurve.getROCArea(curvefinder.getCurve(eval.predictions()));
+    		
+    		AUCDelta = AUCPost - AUC;
+    		
+    		System.out.println(AUCDelta);
+    		
+    		if (AUCDelta < 0)
+    		{
+    			alterWeightDirection(weights_direction);
+    			
+//    			for(int i = 0; i < weights.length; i++)
+//        		{
+//    				weights[i] = weights_local[i];
+//        		}
+    		}
+    		else if (AUCDelta < eAUC)
+    		{
+    			break;
+    		}
+    	}
     	
 		return weights;
+    }
+    
+    public static void alterWeightDirection(int[] weights_direction) 
+    {
+    	Random r = new Random();
+    	r.setSeed(System.currentTimeMillis());
+    	int Low = 0;
+    	int High = 3;
     	
+    	for(int i =0; i < weights_direction.length; i++)
+		{
+			weights_direction[i] = r.nextInt(High-Low) + Low;
+		}
     }
     
     /**
